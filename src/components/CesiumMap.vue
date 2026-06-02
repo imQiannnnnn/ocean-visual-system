@@ -10,6 +10,9 @@ import {
   Cartesian3,
   Color,
   Math as CesiumMath,
+  ScreenSpaceEventHandler,
+  ScreenSpaceEventType,
+  Cartographic,
   UrlTemplateImageryProvider,
   LabelStyle,
   VerticalOrigin,
@@ -23,6 +26,9 @@ const mapContainer = ref<HTMLDivElement | null>(null);
 
 // Cesium 地图实例
 let viewer: Viewer | null = null;
+
+// 鼠标事件处理器，用于监听地图交互事件
+let handler: ScreenSpaceEventHandler | null = null;
 
 // 初始化 + 重置地图视角
 const setInitialCameraView = () => {
@@ -131,6 +137,41 @@ const initViewer = () => {
 
   // 添加地理位置文字
   addGeoLabels();
+
+  // 绑定地图鼠标事件
+  bindMapEvent();
+};
+
+// 绑定地图交互事件
+const bindMapEvent = () => {
+  if (!viewer) return;
+
+  // 基于 Cesium canvas 创建鼠标事件处理器
+  handler = new ScreenSpaceEventHandler(viewer.scene.canvas);
+
+  // 监听鼠标移动事件
+  handler.setInputAction((movement: any) => {
+    if (!viewer) return;
+
+    // 将鼠标屏幕坐标转换为地球椭球面上的三维坐标
+    const cartesian = viewer.camera.pickEllipsoid(
+      movement.endPosition,
+      viewer.scene.globe.ellipsoid,
+    );
+
+    // 鼠标没有落在地球表面时，cartesian 可能为空
+    if (!cartesian) return;
+
+    // 将三维笛卡尔坐标转换为经纬度坐标
+    const cartographic = Cartographic.fromCartesian(cartesian);
+
+    // Cesium 内部经纬度是弧度制，这里转换为角度并保留 4 位小数
+    const lon = CesiumMath.toDegrees(cartographic.longitude).toFixed(4);
+    const lat = CesiumMath.toDegrees(cartographic.latitude).toFixed(4);
+
+    // 可替换为 emit，将经纬度传给父组件展示
+    console.log("lon:", lon, "lat:", lat);
+  }, ScreenSpaceEventType.MOUSE_MOVE);
 };
 
 // 地图放大
@@ -148,6 +189,56 @@ const resetView = () => {
   setInitialCameraView();
 };
 
+// 加载模拟海流图层
+const loadOceanLayer = () => {
+  if (!viewer) return;
+
+  // 加载前先清除旧图层，避免重复添加
+  clearOceanLayer();
+
+  // 模拟海流数据：lon、lat 表示起点，u、v 表示方向偏移
+  const mockCurrentData = [
+    { lon: 112, lat: 20, u: 3, v: 1 },
+    { lon: 116, lat: 21, u: 2, v: -1 },
+    { lon: 120, lat: 22, u: 3, v: 2 },
+    { lon: 124, lat: 23, u: -2, v: 1 },
+    { lon: 128, lat: 25, u: -1, v: 2 },
+  ];
+
+  mockCurrentData.forEach((item) => {
+    viewer?.entities.add({
+      // 统一命名，方便后续批量清除该图层
+      name: "ocean-current-layer",
+      polyline: {
+        // 用起点和终点绘制一条线段，模拟海流方向
+        positions: Cartesian3.fromDegreesArray([
+          item.lon,
+          item.lat,
+          item.lon + item.u,
+          item.lat + item.v,
+        ]),
+        width: 2,
+        material: Color.CYAN.withAlpha(0.75),
+      },
+    });
+  });
+};
+
+// 清除海流图层
+const clearOceanLayer = () => {
+  if (!viewer) return;
+
+  // 找出所有海流图层实体
+  const entities = viewer.entities.values.filter(
+    (entity) => entity.name === "ocean-current-layer",
+  );
+
+  // 从地图中移除这些实体
+  entities.forEach((entity) => {
+    viewer?.entities.remove(entity);
+  });
+};
+
 // 组件挂载后初始化 Cesium
 onMounted(() => {
   initViewer();
@@ -155,6 +246,7 @@ onMounted(() => {
 
 // 组件卸载前销毁 Cesium 实例和事件处理器，防止内存泄漏
 onBeforeUnmount(() => {
+  handler?.destroy();
   viewer?.destroy();
 });
 
@@ -163,6 +255,7 @@ defineExpose({
   zoomIn,
   zoomOut,
   resetView,
+  loadOceanLayer,
 });
 </script>
 

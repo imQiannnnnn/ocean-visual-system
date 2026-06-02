@@ -10,6 +10,8 @@
       <div class="map-wrapper">
         <!-- 中间地图核心 -->
         <CesiumMap ref="mapRef" />
+        <!-- 加载慢 可以先用静态背景 -->
+        <!-- <img class="map-placeholder" :src="mapPlaceholder" alt="" /> -->
 
         <!-- 地图工具栏 -->
         <MapToolbar
@@ -22,6 +24,9 @@
 
         <!-- 数据面板 -->
         <DatasetPanel @show-layer="handleShowLayer" />
+
+        <!-- 图表显示 -->
+        <ChartPopup v-if="showChart" @close="showChart = false" />
 
         <!-- 图例部分-左下角 -->
         <LegendBox />
@@ -47,8 +52,11 @@ import MapToolbar from "../components/MapToolbar.vue";
 import DatasetPanel from "../components/DatasetPanel.vue";
 import LegendBox from "../components/LegendBox.vue";
 import MiniMap from "../components/MiniMap.vue";
+import ChartPopup from "../components/ChartPopup.vue";
+// import mapPlaceholder from "../assets/images/mini-map.png";
 
 const mapRef = ref<InstanceType<typeof CesiumMap> | null>(null);
+// const mapRef = ref<any>(null);
 
 // 地图放大
 const handleZoomIn = () => {
@@ -74,12 +82,14 @@ const handleFullscreen = () => {
 const showLegend = ref(true);
 
 const handleShowLayer = () => {
-  // mapRef.value?.loadOceanLayer();
+  mapRef.value?.loadOceanLayer();
   console.log("数据显示");
 };
 
 const longitude = ref("106°27′30.00″");
 const latitude = ref("27°30′23.12″");
+
+const showChart = ref(true);
 </script>
 
 <style scoped lang="scss">
@@ -105,6 +115,13 @@ const latitude = ref("27°30′23.12″");
   border: 1px solid rgba(92, 184, 255, 0.7);
   overflow: hidden;
   background: #000;
+}
+
+.map-placeholder {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .coordinate-text {
