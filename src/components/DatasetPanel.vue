@@ -86,7 +86,6 @@ const maskVisible = ref(false);
 const currentVariable = ref("temperature");
 const minValue = ref("-1.0");
 const maxValue = ref("1.0");
-// const depth = ref(0);
 
 const variables = [
   { label: "temper...", value: "temperature" },
