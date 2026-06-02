@@ -24,7 +24,7 @@ const mapContainer = ref<HTMLDivElement | null>(null);
 // Cesium 地图实例
 let viewer: Viewer | null = null;
 
-// 初始化地图视角
+// 初始化 + 重置地图视角
 const setInitialCameraView = () => {
   if (!viewer) return;
 
@@ -133,6 +133,21 @@ const initViewer = () => {
   addGeoLabels();
 };
 
+// 地图放大
+const zoomIn = () => {
+  viewer?.camera.zoomIn(500000);
+};
+
+// 地图缩小
+const zoomOut = () => {
+  viewer?.camera.zoomOut(500000);
+};
+
+// 重置地图视角
+const resetView = () => {
+  setInitialCameraView();
+};
+
 // 组件挂载后初始化 Cesium
 onMounted(() => {
   initViewer();
@@ -141,6 +156,13 @@ onMounted(() => {
 // 组件卸载前销毁 Cesium 实例和事件处理器，防止内存泄漏
 onBeforeUnmount(() => {
   viewer?.destroy();
+});
+
+// 暴露方法给父组件调用，例如父组件按钮控制地图放大、缩小、复位、加载图层
+defineExpose({
+  zoomIn,
+  zoomOut,
+  resetView,
 });
 </script>
 
