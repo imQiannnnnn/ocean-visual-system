@@ -19,6 +19,9 @@
           @toggle-legend="showLegend = !showLegend"
           @fullscreen="handleFullscreen"
         />
+
+        <!-- 数据 -->
+        <DatasetPanel @show-layer="handleShowLayer" />
       </div>
     </div>
   </div>
@@ -30,6 +33,7 @@ import HeaderBar from "../components/HeaderBar.vue";
 import LeftTopicMenu from "../components/LeftTopicMenu.vue";
 import CesiumMap from "../components/CesiumMap.vue";
 import MapToolbar from "../components/MapToolbar.vue";
+import DatasetPanel from "../components/DatasetPanel.vue";
 
 const mapRef = ref<InstanceType<typeof CesiumMap> | null>(null);
 
@@ -55,6 +59,11 @@ const handleFullscreen = () => {
 };
 
 const showLegend = ref(true);
+
+const handleShowLayer = () => {
+  // mapRef.value?.loadOceanLayer();
+  console.log("数据显示");
+};
 </script>
 
 <style scoped lang="scss">
