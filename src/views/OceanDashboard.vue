@@ -117,12 +117,12 @@ const showChart = ref(true);
   background: #000;
 }
 
-.map-placeholder {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
+// .map-placeholder {
+//   width: 100%;
+//   height: 100%;
+//   object-fit: cover;
+//   display: block;
+// }
 
 .coordinate-text {
   position: absolute;

@@ -2,8 +2,10 @@
   <header class="header-bar">
     <!-- 地方天气 -->
     <div class="weather">
-      <el-icon class="icon"><LocationFilled /></el-icon>
-      <span>广州</span>
+      <div class="icon-text">
+        <el-icon class="icon"><LocationFilled /></el-icon>
+        <span>广州</span>
+      </div>
       <span>多云</span>
       <span>27 - 32 ℃</span>
     </div>
@@ -14,8 +16,10 @@
     <!-- 用户信息部分 -->
     <div class="user-area">
       <span>系统管理</span>
-      <el-icon class="icon"><UserFilled /></el-icon>
-      <span>Admin</span>
+      <div class="icon-text">
+        <el-icon class="icon"><UserFilled /></el-icon>
+        <span>Admin</span>
+      </div>
       <span>退出登录</span>
     </div>
 
@@ -58,7 +62,7 @@ import { LocationFilled, UserFilled } from "@element-plus/icons-vue";
   top: 36px;
   display: flex;
   align-items: center;
-  gap: 30px;
+  gap: 40px;
   font-size: 14px;
 }
 
@@ -68,7 +72,7 @@ import { LocationFilled, UserFilled } from "@element-plus/icons-vue";
   top: 36px;
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 40px;
   font-size: 14px;
 }
 
@@ -88,6 +92,12 @@ import { LocationFilled, UserFilled } from "@element-plus/icons-vue";
 }
 
 .icon {
-  font-size: 20px;
+  font-size: 24px;
+}
+
+.icon-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 </style>
