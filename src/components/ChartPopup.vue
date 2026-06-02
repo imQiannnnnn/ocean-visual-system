@@ -3,7 +3,7 @@
   <div class="chart-popup">
     <!-- 弹窗标题栏 -->
     <div class="popup-header">
-      <span>洋流Uo随时间变换</span>
+      <span>洋流 Uo 随时间变化</span>
 
       <!-- 关闭按钮：点击后向父组件抛出 close 事件 -->
       <el-icon class="close-icon" @click="$emit('close')">
@@ -27,6 +27,7 @@ import {
 } from "echarts/components";
 import { init, use, type ComposeOption, type ECharts } from "echarts/core";
 import { SVGRenderer } from "echarts/renderers";
+import { oceanCurrentChartDates, oceanCurrentChartValues } from "../mock/chart";
 
 // 声明当前组件会向父组件抛出的事件
 defineEmits(["close"]);
@@ -42,7 +43,7 @@ type ChartOption = ComposeOption<
 // 图表 DOM 容器引用
 const chartRef = ref<HTMLDivElement | null>(null);
 
-// 保存 ECharts 实例，方便后续 resize 和销毁
+// 保存 ECharts 实例
 let chart: ECharts | null = null;
 
 // 监听图表容器尺寸变化，用于自适应布局
@@ -96,23 +97,7 @@ const initChart = () => {
     // X 轴：时间分类轴
     xAxis: {
       type: "category",
-      data: [
-        "2021-07-01",
-        "2021-07-03",
-        "2021-07-05",
-        "2021-07-07",
-        "2021-07-09",
-        "2021-07-11",
-        "2021-07-13",
-        "2021-07-15",
-        "2021-07-17",
-        "2021-07-19",
-        "2021-07-21",
-        "2021-07-23",
-        "2021-07-25",
-        "2021-07-27",
-        "2021-07-29",
-      ],
+      data: [...oceanCurrentChartDates],
       axisLabel: {
         color: "rgba(220, 230, 255, 0.72)",
         fontSize: 12,
@@ -161,20 +146,10 @@ const initChart = () => {
       {
         type: "line",
 
-        // 是否平滑曲线，false 表示折线
-        smooth: false,
-
         // 数据点样式
         symbol: "circle",
         symbolSize: 4,
-
-        // 洋流 Uo 示例数据
-        data: [
-          0.05, 0.08, -0.02, 0.03, -0.13, -0.08, -0.22, -0.17, -0.04, 0.02,
-          0.08, 0.03, 0.05, 0.1, 0.18,
-        ],
-
-        // 折线样式
+        data: oceanCurrentChartValues,
         lineStyle: {
           width: 2,
           color: "#7ea2ff",

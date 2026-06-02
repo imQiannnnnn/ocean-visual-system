@@ -1,17 +1,16 @@
 <template>
   <div class="dataset-panel">
-    <!-- 可滚动内容区 -->
     <div class="panel-scroll">
       <div class="date-row">
-        <span>1900-01</span>
+        <span>{{ datasetStore.dateRange.start }}</span>
         <span class="date-arrow">→</span>
-        <span>2024-12</span>
+        <span>{{ datasetStore.dateRange.end }}</span>
         <el-icon class="calendar-icon">
           <Calendar />
         </el-icon>
       </div>
 
-      <div class="dataset-title">EN4温盐格点数据(C14)</div>
+      <div class="dataset-title">{{ datasetStore.datasetTitle }}</div>
 
       <div class="form-row">
         <span class="section-label">变量</span>
@@ -29,10 +28,10 @@
 
       <div class="variable-row">
         <button
-          v-for="item in variables"
+          v-for="item in datasetStore.variables"
           :key="item.value"
           :class="['variable-btn', { active: currentVariable === item.value }]"
-          @click="currentVariable = item.value"
+          @click="datasetStore.setCurrentVariable(item.value)"
         >
           {{ item.label }}
         </button>
@@ -50,13 +49,9 @@
       </div>
 
       <div class="scale-row">
-        <span>-1.00</span>
-        <span>-0.67</span>
-        <span>-0.33</span>
-        <span>0.00</span>
-        <span>0.33</span>
-        <span>0.67</span>
-        <span>1.00</span>
+        <span v-for="tick in datasetStore.scaleTicks" :key="tick">
+          {{ tick }}
+        </span>
       </div>
 
       <div class="range-row">
@@ -67,30 +62,22 @@
       </div>
 
       <div class="depth-title">深度</div>
-
-      <!-- 内容变多后，这里会滚动，不会撑大面板 -->
     </div>
 
-    <!-- 固定底部按钮，不参与滚动 -->
     <button class="show-btn" @click="$emit('show-layer')">显 示</button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import { Calendar, ArrowDown } from "@element-plus/icons-vue";
+import { storeToRefs } from "pinia";
+import { ArrowDown, Calendar } from "@element-plus/icons-vue";
+import { useDatasetStore } from "../stores/dataset";
 
 defineEmits(["show-layer"]);
 
-const maskVisible = ref(false);
-const currentVariable = ref("temperature");
-const minValue = ref("-1.0");
-const maxValue = ref("1.0");
-
-const variables = [
-  { label: "temper...", value: "temperature" },
-  { label: "salinity", value: "salinity" },
-];
+const datasetStore = useDatasetStore();
+const { currentVariable, maskVisible, maxValue, minValue } =
+  storeToRefs(datasetStore);
 </script>
 
 <style scoped lang="scss">
@@ -116,7 +103,6 @@ const variables = [
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.35);
 }
 
-/* 可滚动区域 */
 .panel-scroll {
   width: 100%;
   height: 100%;
@@ -126,7 +112,6 @@ const variables = [
   box-sizing: border-box;
 }
 
-/* 时间行 */
 .date-row {
   display: grid;
   grid-template-columns: 1fr 26px 1fr 20px;
@@ -153,7 +138,6 @@ const variables = [
   color: #b7beca;
 }
 
-/* 数据集标题 */
 .dataset-title {
   height: 28px;
   width: 90%;
@@ -168,7 +152,6 @@ const variables = [
   font-weight: 700;
 }
 
-/* 变量行 */
 .form-row {
   display: flex;
   align-items: center;
@@ -196,7 +179,6 @@ const variables = [
   color: #4aa3ff;
 }
 
-/* 变量按钮 */
 .variable-row {
   display: flex;
   gap: 12px;
@@ -232,7 +214,6 @@ const variables = [
   border-color: rgba(0, 0, 0, 0.85);
 }
 
-/* 色带 */
 .label-text {
   margin-bottom: 8px;
   font-size: 13px;
@@ -279,7 +260,6 @@ const variables = [
   color: #ffffff;
 }
 
-/* 色带刻度 */
 .scale-row {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -294,7 +274,6 @@ const variables = [
   text-align: center;
 }
 
-/* 最大最小值 */
 .range-row {
   display: grid;
   grid-template-columns: 62px 1fr 1fr 62px;
@@ -328,7 +307,6 @@ const variables = [
   text-align: center;
 }
 
-/* 深度 */
 .depth-title {
   margin-bottom: 2px;
   font-size: 13px;
@@ -341,7 +319,6 @@ const variables = [
   box-sizing: border-box;
 }
 
-/* 显示按钮固定在右下角 */
 .show-btn {
   position: absolute;
   right: 12px;
@@ -366,7 +343,6 @@ const variables = [
   background: rgba(28, 42, 78, 0.98);
 }
 
-/* 滚动条样式 */
 .panel-scroll::-webkit-scrollbar {
   width: 4px;
 }
@@ -380,7 +356,6 @@ const variables = [
   background: transparent;
 }
 
-/* Element Plus Switch 覆盖 */
 :deep(.el-switch) {
   height: 20px;
 }
@@ -390,7 +365,6 @@ const variables = [
   height: 22px;
   min-width: 42px;
   border: none;
-  // background: #eef1f7;
 }
 
 :deep(.el-switch__core .el-switch__action) {

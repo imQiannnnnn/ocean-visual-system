@@ -10,8 +10,6 @@
       <div class="map-wrapper">
         <!-- 中间地图核心 -->
         <CesiumMap ref="mapRef" />
-        <!-- 加载慢 可以先用静态背景 -->
-        <!-- <img class="map-placeholder" :src="mapPlaceholder" alt="" /> -->
 
         <!-- 地图工具栏 -->
         <MapToolbar
@@ -29,7 +27,7 @@
         <ChartPopup v-if="showChart" @close="showChart = false" />
 
         <!-- 图例部分-左下角 -->
-        <LegendBox />
+        <LegendBox v-if="showLegend" />
 
         <!-- 小地图部分-右下角 -->
         <MiniMap />
@@ -45,18 +43,25 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
+import CesiumMap from "../components/CesiumMap.vue";
+import ChartPopup from "../components/ChartPopup.vue";
+import DatasetPanel from "../components/DatasetPanel.vue";
 import HeaderBar from "../components/HeaderBar.vue";
 import LeftTopicMenu from "../components/LeftTopicMenu.vue";
-import CesiumMap from "../components/CesiumMap.vue";
-import MapToolbar from "../components/MapToolbar.vue";
-import DatasetPanel from "../components/DatasetPanel.vue";
 import LegendBox from "../components/LegendBox.vue";
+import MapToolbar from "../components/MapToolbar.vue";
 import MiniMap from "../components/MiniMap.vue";
-import ChartPopup from "../components/ChartPopup.vue";
-// import mapPlaceholder from "../assets/images/mini-map.png";
 
+import { initialCoordinate } from "../mock/dashboard";
+import { useDatasetStore } from "../stores/dataset";
+
+const datasetStore = useDatasetStore();
 const mapRef = ref<InstanceType<typeof CesiumMap> | null>(null);
-// const mapRef = ref<any>(null);
+
+const showLegend = ref(true);
+const showChart = ref(true);
+const longitude = ref(initialCoordinate.longitude);
+const latitude = ref(initialCoordinate.latitude);
 
 // 地图放大
 const handleZoomIn = () => {
@@ -75,21 +80,13 @@ const handleReset = () => {
 
 // 地图全屏
 const handleFullscreen = () => {
-  const el = document.querySelector(".map-wrapper") as HTMLElement;
+  const el = document.querySelector(".map-wrapper") as HTMLElement | null;
   el?.requestFullscreen?.();
 };
 
-const showLegend = ref(true);
-
 const handleShowLayer = () => {
-  mapRef.value?.loadOceanLayer();
-  console.log("数据显示");
+  mapRef.value?.loadOceanLayer(datasetStore.layerConfig);
 };
-
-const longitude = ref("106°27′30.00″");
-const latitude = ref("27°30′23.12″");
-
-const showChart = ref(true);
 </script>
 
 <style scoped lang="scss">
@@ -116,13 +113,6 @@ const showChart = ref(true);
   overflow: hidden;
   background: #000;
 }
-
-// .map-placeholder {
-//   width: 100%;
-//   height: 100%;
-//   object-fit: cover;
-//   display: block;
-// }
 
 .coordinate-text {
   position: absolute;
